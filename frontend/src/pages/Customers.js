@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { customersApi } from '../services/api';
+import { Search, Plus, Edit2, Trash2, Users, X } from 'lucide-react';
 
 export default function Customers() {
   const [search, setSearch] = useState('');
@@ -43,14 +44,16 @@ export default function Customers() {
           <div className="page-title">Customers</div>
           <div className="page-subtitle">{customers.length} registered customers</div>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Add Customer</button>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          <Plus size={18} /> Add Customer
+        </button>
       </div>
 
-      <div className="table-container">
+      <div className="table-container color-green">
         <div className="table-toolbar">
           <div className="table-title">Customer List</div>
           <div className="search-box">
-            <span className="search-icon">⌕</span>
+            <Search className="search-icon" size={16} />
             <input
               className="search-input"
               placeholder="Search name or email..."
@@ -61,42 +64,48 @@ export default function Customers() {
         </div>
 
         {isLoading ? (
-          <div className="loading-state"><div className="spinner" />Loading...</div>
+          <div className="loading-state"><div className="spinner" /><span>Loading customers...</span></div>
         ) : !customers.length ? (
           <div className="empty-state">
-
+            <Users className="empty-state-icon" size={48} />
             <div className="empty-state-text">No customers found</div>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Address</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map(c => (
-                <tr key={c.id}>
-                  <td className="td-mono">#{c.id}</td>
-                  <td className="td-main">{c.name}</td>
-                  <td style={{ color: 'var(--accent2)' }}>{c.email}</td>
-                  <td>{c.phone || '—'}</td>
-                  <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.address || '—'}</td>
-                  <td>
-                    <div className="actions-cell">
-                      <button className="btn btn-ghost btn-sm" onClick={() => setEditing(c)}>Edit</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c.id, c.name)}>Delete</button>
-                    </div>
-                  </td>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Address</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {customers.map(c => (
+                  <tr key={c.id}>
+                    <td className="td-mono">#{c.id}</td>
+                    <td className="td-main">{c.name}</td>
+                    <td style={{ color: 'var(--accent2)' }}>{c.email}</td>
+                    <td>{c.phone || '—'}</td>
+                    <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.address || '—'}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="actions-cell" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button className="btn btn-ghost btn-icon" title="Edit" onClick={() => setEditing(c)}>
+                          <Edit2 size={16} />
+                        </button>
+                        <button className="btn btn-danger btn-icon" title="Delete" onClick={() => handleDelete(c.id, c.name)}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -132,7 +141,7 @@ function CustomerModal({ customer, onClose, onSubmit, loading }) {
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">{customer ? 'Edit Customer' : 'New Customer'}</div>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="modal-body">

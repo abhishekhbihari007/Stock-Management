@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { ordersApi, customersApi, productsApi } from '../services/api';
+import { ShoppingCart, Plus, Eye, Trash2, X } from 'lucide-react';
 
 const STATUS_OPTIONS = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
@@ -51,16 +52,18 @@ export default function Orders() {
       <div className="page-header">
         <div>
           <div className="page-title">Orders</div>
-          <div className="page-subtitle">{orders.length} orders</div>
+          <div className="page-subtitle">{orders.length} total orders</div>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ New Order</button>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          <Plus size={18} /> New Order
+        </button>
       </div>
 
-      <div className="table-container">
+      <div className="table-container color-purple">
         <div className="table-toolbar">
           <div className="table-title">Order List</div>
           <div className="filter-bar">
-            <select className="form-select" style={{ width: '150px' }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+            <select className="form-select" style={{ width: '160px' }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
               <option value="">All Statuses</option>
               {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
             </select>
@@ -68,44 +71,50 @@ export default function Orders() {
         </div>
 
         {isLoading ? (
-          <div className="loading-state"><div className="spinner" />Loading...</div>
+          <div className="loading-state"><div className="spinner" /><span>Loading orders...</span></div>
         ) : !orders.length ? (
           <div className="empty-state">
-
+            <ShoppingCart className="empty-state-icon" size={48} />
             <div className="empty-state-text">No orders found</div>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map(o => (
-                <tr key={o.id}>
-                  <td className="td-mono">#{o.id}</td>
-                  <td className="td-main">{o.customer?.name || '—'}</td>
-                  <td><span className="badge badge-gray">{o.items.length} item{o.items.length !== 1 ? 's' : ''}</span></td>
-                  <td style={{ fontFamily: 'var(--mono)', color: 'var(--green)' }}>₹{o.total_amount.toFixed(2)}</td>
-                  <td><span className={`badge ${STATUS_MAP[o.status]}`}>{o.status}</span></td>
-                  <td style={{ fontSize: '12px' }}>{new Date(o.created_at).toLocaleDateString()}</td>
-                  <td>
-                    <div className="actions-cell">
-                      <button className="btn btn-ghost btn-sm" onClick={() => setViewOrder(o)}>View</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(o.id)}>Delete</button>
-                    </div>
-                  </td>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.map(o => (
+                  <tr key={o.id}>
+                    <td className="td-mono">#{o.id}</td>
+                    <td className="td-main">{o.customer?.name || '—'}</td>
+                    <td><span className="badge badge-gray">{o.items.length} item{o.items.length !== 1 ? 's' : ''}</span></td>
+                    <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--green)' }}>₹{o.total_amount.toFixed(2)}</td>
+                    <td><span className={`badge ${STATUS_MAP[o.status]}`}>{o.status}</span></td>
+                    <td style={{ fontSize: '13px', color: 'var(--text2)' }}>{new Date(o.created_at).toLocaleDateString()}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="actions-cell" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button className="btn btn-ghost btn-icon" title="View Details" onClick={() => setViewOrder(o)}>
+                          <Eye size={16} />
+                        </button>
+                        <button className="btn btn-danger btn-icon" title="Delete" onClick={() => handleDelete(o.id)}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -166,10 +175,10 @@ function CreateOrderModal({ onClose, onSubmit, loading }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: '640px' }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">New Order</div>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
@@ -210,23 +219,27 @@ function CreateOrderModal({ onClose, onSubmit, loading }) {
                           placeholder="Qty"
                         />
                       </div>
-                      <div style={{ color: 'var(--text2)', fontSize: '12px', minWidth: '70px', paddingBottom: '2px' }}>
+                      <div style={{ color: 'var(--text2)', fontSize: '13px', minWidth: '80px', paddingBottom: '4px', display: 'flex', alignItems: 'center' }}>
                         {prod ? `₹${(prod.price * (parseInt(item.quantity) || 0)).toFixed(2)}` : ''}
                       </div>
                       {items.length > 1 && (
-                        <button type="button" className="remove-item-btn" onClick={() => removeItem(idx)}>✕</button>
+                        <button type="button" className="remove-item-btn" onClick={() => removeItem(idx)}>
+                          <Trash2 size={16} />
+                        </button>
                       )}
                     </div>
                   );
                 })}
               </div>
-              <button type="button" className="add-item-btn" onClick={addItem}>+ Add Item</button>
+              <button type="button" className="add-item-btn" onClick={addItem}>
+                <Plus size={16} style={{ marginRight: '8px' }} /> Add Item
+              </button>
             </div>
 
             {total > 0 && (
-              <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--text2)', fontSize: '13px' }}>Order Total</span>
-                <span style={{ color: 'var(--green)', fontFamily: 'var(--mono)', fontSize: '18px', fontWeight: '600' }}>₹{total.toFixed(2)}</span>
+              <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text2)', fontSize: '14px', fontWeight: '500' }}>Order Total</span>
+                <span style={{ color: 'var(--green)', fontFamily: 'var(--font-mono)', fontSize: '24px', fontWeight: '700' }}>₹{total.toFixed(2)}</span>
               </div>
             )}
 
@@ -252,41 +265,43 @@ function ViewOrderModal({ order, onClose, onUpdateStatus, loading }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{ maxWidth: '580px' }} onClick={e => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: '640px' }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div>
             <div className="modal-title">Order #{order.id}</div>
-            <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '2px' }}>{new Date(order.created_at).toLocaleString()}</div>
+            <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '4px' }}>{new Date(order.created_at).toLocaleString()}</div>
           </div>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <div className="modal-body">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-            <div style={{ background: 'var(--bg2)', borderRadius: '8px', padding: '12px' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>CUSTOMER</div>
-              <div style={{ fontWeight: '500' }}>{order.customer?.name}</div>
-              <div style={{ fontSize: '12px', color: 'var(--text2)' }}>{order.customer?.email}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '8px', fontWeight: '600', letterSpacing: '0.05em' }}>CUSTOMER</div>
+              <div style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text)' }}>{order.customer?.name}</div>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', marginTop: '2px' }}>{order.customer?.email}</div>
             </div>
-            <div style={{ background: 'var(--bg2)', borderRadius: '8px', padding: '12px' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>TOTAL</div>
-              <div style={{ fontSize: '20px', fontFamily: 'var(--mono)', color: 'var(--green)', fontWeight: '600' }}>₹{order.total_amount.toFixed(2)}</div>
+            <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '8px', fontWeight: '600', letterSpacing: '0.05em' }}>TOTAL AMOUNT</div>
+              <div style={{ fontSize: '24px', fontFamily: 'var(--font-mono)', color: 'var(--green)', fontWeight: '700' }}>₹{order.total_amount.toFixed(2)}</div>
             </div>
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Items</div>
-            {order.items.map(item => (
-              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-                <div>
-                  <span style={{ fontWeight: '500' }}>{item.product?.name}</span>
-                  <span style={{ fontSize: '11px', color: 'var(--text3)', marginLeft: '8px', fontFamily: 'var(--mono)' }}>{item.product?.sku}</span>
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order Items</div>
+            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
+              {order.items.map((item, idx) => (
+                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: idx % 2 === 0 ? 'transparent' : 'var(--surface2)', borderBottom: idx === order.items.length - 1 ? 'none' : '1px solid var(--border)' }}>
+                  <div>
+                    <div style={{ fontWeight: '500', color: 'var(--text)' }}>{item.product?.name}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text3)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>{item.product?.sku}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text2)', fontSize: '14px' }}>×{item.quantity}</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text)', fontWeight: '500' }}>₹{(item.unit_price * item.quantity).toFixed(2)}</span>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--text2)', fontSize: '13px' }}>×{item.quantity}</span>
-                  <span style={{ fontFamily: 'var(--mono)', color: 'var(--text)' }}>₹{(item.unit_price * item.quantity).toFixed(2)}</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           <div className="form-group">
@@ -297,8 +312,8 @@ function ViewOrderModal({ order, onClose, onUpdateStatus, loading }) {
           </div>
 
           {order.notes && (
-            <div style={{ background: 'var(--bg2)', borderRadius: '8px', padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text3)' }}>NOTES: </span>{order.notes}
+            <div style={{ background: 'var(--surface2)', borderRadius: '8px', padding: '16px', fontSize: '14px', color: 'var(--text2)', marginTop: '8px' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600', marginRight: '8px' }}>NOTES:</span> {order.notes}
             </div>
           )}
         </div>

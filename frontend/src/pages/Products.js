@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { productsApi } from '../services/api';
+import { Search, Plus, Edit2, Trash2, Sliders, Box, X } from 'lucide-react';
 
 export default function Products() {
   const [search, setSearch] = useState('');
@@ -50,14 +51,16 @@ export default function Products() {
           <div className="page-title">Products</div>
           <div className="page-subtitle">{products.length} products in catalog</div>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Add Product</button>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          <Plus size={18} /> Add Product
+        </button>
       </div>
 
-      <div className="table-container">
+      <div className="table-container color-blue">
         <div className="table-toolbar">
           <div className="table-title">Product Catalog</div>
           <div className="search-box">
-            <span className="search-icon">⌕</span>
+            <Search className="search-icon" size={16} />
             <input
               className="search-input"
               placeholder="Search name or SKU..."
@@ -68,49 +71,57 @@ export default function Products() {
         </div>
 
         {isLoading ? (
-          <div className="loading-state"><div className="spinner" />Loading...</div>
+          <div className="loading-state"><div className="spinner" /><span>Loading products...</span></div>
         ) : !products.length ? (
           <div className="empty-state">
-
+            <Box className="empty-state-icon" size={48} />
             <div className="empty-state-text">No products found</div>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>SKU</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(p => (
-                <tr key={p.id}>
-                  <td className="td-main">{p.name}</td>
-                  <td className="td-mono">{p.sku}</td>
-                  <td>{p.category || '—'}</td>
-                  <td style={{ fontFamily: 'var(--mono)', color: 'var(--text)' }}>₹{p.price.toFixed(2)}</td>
-                  <td>
-                    <div className="stock-bar">
-                      <span className={`badge ${p.stock_quantity === 0 ? 'badge-red' : p.stock_quantity <= 10 ? 'badge-amber' : 'badge-green'}`}>
-                        {p.stock_quantity}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="actions-cell">
-                      <button className="btn btn-ghost btn-sm" onClick={() => setShowAdjust(p)}>Adjust Stock</button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setEditing(p)}>Edit</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p.id, p.name)}>Delete</button>
-                    </div>
-                  </td>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>SKU</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products.map(p => (
+                  <tr key={p.id}>
+                    <td className="td-main">{p.name}</td>
+                    <td className="td-mono">{p.sku}</td>
+                    <td>{p.category || '—'}</td>
+                    <td style={{ fontFamily: 'var(--font-mono)', color: '#10b981' }}>₹{p.price.toFixed(2)}</td>
+                    <td>
+                      <div className="stock-bar">
+                        <span className={`badge ${p.stock_quantity === 0 ? 'badge-red' : p.stock_quantity <= 10 ? 'badge-amber' : 'badge-green'}`}>
+                          {p.stock_quantity}
+                        </span>
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="actions-cell" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button className="btn btn-ghost btn-icon" title="Adjust Stock" onClick={() => setShowAdjust(p)}>
+                          <Sliders size={16} />
+                        </button>
+                        <button className="btn btn-ghost btn-icon" title="Edit" onClick={() => setEditing(p)}>
+                          <Edit2 size={16} />
+                        </button>
+                        <button className="btn btn-danger btn-icon" title="Delete" onClick={() => handleDelete(p.id, p.name)}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -165,7 +176,7 @@ function ProductModal({ product, onClose, onSubmit, loading }) {
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">{product ? 'Edit Product' : 'New Product'}</div>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
@@ -224,12 +235,12 @@ function AdjustModal({ product, onClose, onSubmit, loading }) {
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">Adjust Inventory</div>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
-            <p style={{ color: 'var(--text2)', marginBottom: '16px', fontSize: '13px' }}>
-              <strong style={{ color: 'var(--text)' }}>{product.name}</strong> — Current stock: <span className="badge badge-blue">{product.stock_quantity}</span>
+            <p style={{ color: 'var(--text2)', marginBottom: '20px', fontSize: '14px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px' }}>
+              <strong style={{ color: 'var(--text)' }}>{product.name}</strong> — Current stock: <span className="badge badge-blue" style={{ marginLeft: '8px' }}>{product.stock_quantity} units</span>
             </p>
             <div className="form-group">
               <label className="form-label">Quantity Change (use negative to reduce)</label>
