@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { customersApi } from '../services/api';
 import { Search, Plus, Edit2, Trash2, Users, X } from 'lucide-react';
+import { useDebounce } from '../hooks/useDebounce';
 
 export default function Customers() {
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const qc = useQueryClient();
 
   const { data: customers = [], isLoading } = useQuery({
-    queryKey: ['customers', search],
-    queryFn: () => customersApi.getAll({ search }).then(r => r.data),
+    queryKey: ['customers', debouncedSearch],
+    queryFn: () => customersApi.getAll({ search: debouncedSearch }).then(r => r.data),
+    placeholderData: keepPreviousData,
   });
 
   const createMut = useMutation({
