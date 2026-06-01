@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { X } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Customers from './pages/Customers';
 import Orders from './pages/Orders';
 import InventoryLogs from './pages/InventoryLogs';
-import TopNavbar from './components/TopNavbar';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -15,28 +15,39 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
         <div className="app">
-          <Sidebar />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/inventory" element={<InventoryLogs />} />
-            </Routes>
-          </main>
+          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+          
+          <div className={`main-wrapper ${isSidebarOpen ? '' : 'sidebar-closed'}`}>
+
+            <main className="main-content">
+              <div className="page-transition-wrapper">
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/customers" element={<Customers />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/inventory" element={<InventoryLogs />} />
+                </Routes>
+              </div>
+            </main>
+          </div>
         </div>
-        <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+        <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#1E293B', color: '#fff' } }} />
       </Router>
     </QueryClientProvider>
   );
 }
 
-function Sidebar() {
+
+function Sidebar({ isOpen, toggleSidebar }) {
   const links = [
     { to: '/', label: 'Dashboard' },
     { to: '/products', label: 'Products' },
@@ -46,30 +57,39 @@ function Sidebar() {
   ];
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <div className="sidebar-brand-name">
-          <span className="brand-main">Ethara</span>
-          <span className="brand-sub">Stock Management</span>
+    <>
+      <div className={`sidebar-overlay ${isOpen ? 'show' : ''}`} onClick={toggleSidebar}></div>
+      <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+        <div className="sidebar-header">
+          <div className="sidebar-brand-name">
+            <span className="brand-main">Ethara.AI</span>
+            <span className="brand-sub">Inventory Management System</span>
+          </div>
+          <button className="btn-icon mobile-close-btn" onClick={toggleSidebar}>
+            <X size={20} />
+          </button>
         </div>
-      </div>
-      <nav className="sidebar-nav">
-        {links.map(link => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.to === '/'}
-            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-          >
-            <span>{link.label}</span>
-          </NavLink>
-        ))}
-      </nav>
-      <div className="sidebar-footer">
-        <p className="footer-text">Developed & Designed by</p>
-        <p className="footer-developer">Abhishekh Bihari</p>
-      </div>
-    </aside>
+        <nav className="sidebar-nav">
+          {links.map(link => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.to === '/'}
+              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            >
+              <div className="nav-link-bg"></div>
+              <span>{link.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <div className="footer-glass">
+            <p className="footer-text">Designed By</p>
+            <p className="footer-developer">Abhishekh Bihari</p>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
 
