@@ -1,4 +1,4 @@
-# Inventory & Order Management System (IMS)
+# Ethara Stock Management
 
 A full-stack inventory and order management system built with FastAPI, React, and PostgreSQL.
 
@@ -119,6 +119,15 @@ npm start
 | GET | `/api/inventory/dashboard` | Get dashboard stats |
 
 ## Deployment
+
+### Backend & Database on Render (Automated)
+
+The repository includes a `render.yaml` file for easy deployment to Render.
+
+1. Create a Render account at [render.com](https://render.com)
+2. Go to the dashboard and click **New +** -> **Blueprint**.
+3. Connect your GitHub repository.
+4. Render will automatically provision the PostgreSQL database and deploy the FastAPI backend using the configuration in `render.yaml`.
 
 ### Backend on Railway
 
