@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { X } from 'lucide-react';
+import { X, Menu } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Customers from './pages/Customers';
@@ -15,17 +15,43 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
+
+  // Handle resize to auto-close sidebar on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 1024) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebarOnMobile = () => {
+    if (window.innerWidth <= 1024) {
+      setIsSidebarOpen(false);
+    }
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
         <div className="app">
-          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} closeSidebar={closeSidebarOnMobile} />
           
           <div className={`main-wrapper ${isSidebarOpen ? '' : 'sidebar-closed'}`}>
+            <header className="mobile-header">
+              <div className="mobile-brand-name">
+                <span className="brand-main">Ethara.AI</span>
+              </div>
+              <button className="btn-icon mobile-menu-btn" onClick={toggleSidebar}>
+                <Menu size={24} />
+              </button>
+            </header>
 
             <main className="main-content">
               <div className="page-transition-wrapper">
@@ -47,7 +73,7 @@ function App() {
 }
 
 
-function Sidebar({ isOpen, toggleSidebar }) {
+function Sidebar({ isOpen, toggleSidebar, closeSidebar }) {
   const links = [
     { to: '/', label: 'Dashboard' },
     { to: '/products', label: 'Products' },
@@ -75,6 +101,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
               key={link.to}
               to={link.to}
               end={link.to === '/'}
+              onClick={closeSidebar}
               className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
             >
               <div className="nav-link-bg"></div>
