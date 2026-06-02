@@ -8,10 +8,10 @@ A full-stack inventory and order management system built with FastAPI, React, an
 |-------|-----------|
 | Frontend | React 18, React Router, TanStack Query, Axios |
 | Backend | FastAPI, SQLAlchemy, Pydantic v2 |
-| Database | PostgreSQL 15 |
+| Database | PostgreSQL |
 | Containerization | Docker, Docker Compose |
 | Frontend Deploy | Vercel |
-| Backend Deploy | Railway |
+| Backend Deploy | RENDER |
 
 ## Features
 
