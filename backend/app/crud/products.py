@@ -63,6 +63,12 @@ def update_product(db: Session, product_id: int, product_update: ProductUpdate):
 
 def delete_product(db: Session, product_id: int):
     db_product = get_product(db, product_id)
+    
+    if db_product.order_items:
+        raise HTTPException(status_code=400, detail="Cannot delete product that is part of an order")
+        
+    db.query(InventoryLog).filter(InventoryLog.product_id == product_id).delete()
+    
     db.delete(db_product)
     db.commit()
     return {"message": "Product deleted successfully"}
